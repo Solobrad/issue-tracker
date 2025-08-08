@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, TextField } from "@radix-ui/themes";
+import { Button, Callout, Text, TextField } from "@radix-ui/themes";
 import dynamic from "next/dynamic";
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
@@ -9,42 +9,74 @@ import { useForm, Controller } from "react-hook-form";
 import "easymde/dist/easymde.min.css";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createIssueSchema } from "@/app/validationSchemas";
+import { z } from "zod";
 
-interface IssueForm {
-  title: string;
-  description: string;
-}
+type IssueForm = z.infer<typeof createIssueSchema>;
+
 const NewIssuePage = () => {
   const router = useRouter();
-  const { register, control, handleSubmit } = useForm<IssueForm>();
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<IssueForm>({
+    resolver: zodResolver(createIssueSchema),
+  });
+  const [error, setError] = useState("");
 
   return (
-    <form
-      className="space-y-3"
-      onSubmit={handleSubmit(async (data) => {
-        await axios.post("/api/issues", data);
-        router.push("/issues");
-      })}
-    >
-      <TextField.Root placeholder="Title" {...register("title")}>
-        <TextField.Slot></TextField.Slot>
-      </TextField.Root>
-      <Controller
-        name="description"
-        control={control}
-        render={({ field: { onChange, onBlur, value, ref } }) => (
-          <SimpleMDE
-            placeholder="Description"
-            onChange={onChange}
-            onBlur={onBlur}
-            value={value}
-            ref={ref}
-          />
-        )}
-      />
+    <div className="max-w-xl">
+      {error && (
+        <Callout.Root className="mb-5">
+          <Callout.Icon></Callout.Icon>
+          <Callout.Text>{error}</Callout.Text>
+        </Callout.Root>
+      )}
 
-      <Button>Submit New Issue</Button>
-    </form>
+      <form
+        className="space-y-3"
+        onSubmit={handleSubmit(async (data) => {
+          try {
+            await axios.post("/api/issues", data);
+            router.push("/issues");
+          } catch (error) {
+            setError("An unexpected error occured");
+          }
+        })}
+      >
+        <TextField.Root placeholder="Title" {...register("title")}>
+          <TextField.Slot></TextField.Slot>
+        </TextField.Root>
+        {errors.title && (
+          <Text color="red" as="p">
+            {errors.title.message}
+          </Text>
+        )}
+        <Controller
+          name="description"
+          control={control}
+          render={({ field: { onChange, onBlur, value, ref } }) => (
+            <SimpleMDE
+              placeholder="Description"
+              onChange={onChange}
+              onBlur={onBlur}
+              value={value}
+              ref={ref}
+            />
+          )}
+        />
+        {errors.description && (
+          <Text color="red" as="p">
+            {errors.description.message}
+          </Text>
+        )}
+        <Button>Submit New Issue</Button>
+      </form>
+    </div>
   );
 };
 
