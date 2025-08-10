@@ -1,6 +1,6 @@
 import { issueSchema } from "@/app/validationSchemas";
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "../../../../prisma/client";
+import prisma from "../../../../../prisma/client";
 
 export async function PATCH(
     request: NextRequest,
@@ -12,7 +12,7 @@ export async function PATCH(
         return NextResponse.json(validation.error, {status:400})
 
    const issue = await prisma.issue.findUnique({
-        where: { id : parseInt(params.id)}
+        where: { id : parseInt((await params).id)}
     });
 
     if(!issue)
