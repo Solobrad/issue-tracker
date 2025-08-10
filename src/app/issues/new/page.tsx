@@ -1,6 +1,6 @@
 "use client";
 
-import { Button, Callout, Text, TextField } from "@radix-ui/themes";
+import { Button, Callout, Text, TextField, ThemePanel } from "@radix-ui/themes";
 import dynamic from "next/dynamic";
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
   ssr: false,
@@ -73,6 +73,7 @@ const NewIssuePage = () => {
         <Button disabled={isSubmitting}>
           Submit New Issue {isSubmitting && <Spinner />}
         </Button>
+        {/* <ThemePanel /> */}
       </form>
     </div>
   );
