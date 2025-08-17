@@ -1,0 +1,7 @@
+1. Go to this page git filter repo
+https://github.com/newren/git-filter-repo/blob/main/git-filter-repo
+
+2. Download
+
+3. then run this to remove any files
+python git-filter-repo.py --path .env --invert-paths --force
