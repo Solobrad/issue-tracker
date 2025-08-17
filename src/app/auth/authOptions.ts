@@ -10,7 +10,10 @@ adapter: PrismaAdapter(prisma),
     clientId: process.env.GOOGLE_CLIENT_ID!,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET!
   })
-]
+],
+  session: {
+    strategy: "jwt", // <-- use JWT instead of database sessions
+  },
 }
 
 export default authOptions;
